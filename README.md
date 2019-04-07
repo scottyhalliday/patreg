@@ -1,0 +1,2 @@
+# patreg
+Pattern recognition library
