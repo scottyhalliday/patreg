@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import this packages modules
-import normal
+from distributions import normal
 
 def cdf(x: float, xpoints: np.array, ypoints: np.array):
     '''
