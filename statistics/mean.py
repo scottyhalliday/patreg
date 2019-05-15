@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import this packages modules
-import normal
+from distributions import normal
 
 def mean(x: np.array, y: np.array):
     assert(x.size == y.size)
