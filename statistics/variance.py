@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # Import this packages modules
 import mean
-import normal
+from distributions import normal
 
 def variance(mu: float, x: np.array, y: np.array):
     assert(x.size == y.size)
