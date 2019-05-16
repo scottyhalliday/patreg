@@ -1,3 +1,5 @@
 env
 .envrc
 SMH__
+*__pycache__*
+*.pyc

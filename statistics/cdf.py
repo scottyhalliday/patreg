@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import this packages modules
-from distributions import normal
+from distributions import normal, cauchy
 
 def cdf(x: float, xpoints: np.array, ypoints: np.array):
     '''
@@ -37,6 +37,10 @@ def cdf(x: float, xpoints: np.array, ypoints: np.array):
 if __name__=='__main__':
     x1, y1 = normal.normal_distribution(100, -20.0, 20.0, 0.0, 1.0)
 
+    #
+    # TODO:  NEED TO CALCULATE CDF FOR MULTIPLE POINTS AND PLOT THOSE FOR THIS TO TRULEY BE A CDF PLOT
+    #
+
     print(f'CDF for Normal Distribution with mu=0.0, sigma=1.0')
     print(f'CDF at 10.0 is {cdf(10.0,x1,y1)}')
     print(f'CDF at 1.0  is {cdf(1.0,x1,y1)}')
@@ -50,11 +54,19 @@ if __name__=='__main__':
     print(f'CDF at 2.5  is {cdf(2.5,x2,y2)}')
     print('')
 
+    x3, y3 = cauchy.cauchy_distribution(1000, -20.0, 20.0, 0.0, 0.5)
+    print(f'CDF for Cauchy Distribution with xo=0.0, gamma=0.5')
+    print(f'CDF at 0.0 is {cdf(0.0,x3,y3)}')
+    print(f'CDF at 1.0 is {cdf(1.0,x3,y3)}')
+    print(f'CDF at 2.5 is {cdf(2.5,x3,y3)}')
+    print('')
+
     fig,ax = plt.subplots()
-    ax.plot(x1,y1, label='mu=0,sigma=1')
-    ax.plot(x2,y2, label='mu=0,sigma=5')
+    ax.plot(x1,y1, label='Normal - mu=0.0,sigma=1.0')
+    ax.plot(x2,y2, label='Normal - mu=0.0,sigma=5.0')
+    ax.plot(x3,y3, label='Cauchy - xo=0.0,gamma=0.5')
     ax.set_xlim(left=-20,right=20)
     ax.legend()
-    ax.set_title("Normal Distributions")
+    ax.set_title("Cumumlative Distribution Function")
     plt.grid()
     plt.show()
