@@ -2,11 +2,10 @@
 PATREG - A Pattern Recognition Tool Box
 
 bayes2.py
-Models a two class classifier based on Bayes Decision Theory.  This is a
-two-class case only.
+Models a two class classifier based on Bayes Decision Theory.  
 
 This assumes that there are two classes w1 and w2 to
-which the pattern belongs.  Given the priori probabilities of w1 and w2 along
+which the random variable belongs.  Given a priori probabilities of w1 and w2 along
 with the class-conditional probability density functions p(x|w1) and p(x|w2).
 The PDF p(x|wi) is sometimes referred to as the likelihood function of wi with
 respect to random variable x.  To summarize the following items are needed
