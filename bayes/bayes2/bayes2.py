@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import this packages modules
-from patreg.statistics.distributions import normal
+from patreg.statistics.distributions import normal, gumbel, cauchy
 from patreg.statistics.pdf import pdf
 
 def bayes2(x: float, pw1: float, pw2: float,
@@ -69,7 +69,17 @@ def bayes2(x: float, pw1: float, pw2: float,
 
     # Determine where the two classes intersect
     idx = np.argwhere(np.diff(np.sign(pxw1_y - pxw2_y))).flatten()
-    xo  = pxw1_x[idx]
+
+    # If multiple indicies intersect, find the index with the highest probability
+    # and set that as our xo boundary
+    xidx = -1
+    xmax = -1
+    for i in idx:
+        if pxw1_y[i] > xmax:
+            xidx = i
+            xmax = pxw1_y[i]
+
+    xo  = pxw1_x[xidx]
 
     # Calculate the probability of commiting a decision error
     Pe1 = 0
@@ -104,43 +114,60 @@ if __name__=='__main__':
 
     xclasses = []
 
-    xclass,px1,px2,Pe = bayes2(-5, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable  -5.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append(( -5.0, xclass,px1,px2,Pe))
+    # A priori probabilities
+    Pw1 = 0.5
+    Pw2 = 0.5
 
-    xclass,px1,px2,Pe = bayes2( 5, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable   5.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append((  5.0, xclass,px1,px2,Pe))
+    # List of random variales to classify
+    xs = [-5, 5, -1, 1, 0, -10, 10]
 
-    xclass,px1,px2,Pe = bayes2(-1, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable  -1.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append(( -1.0, xclass,px1,px2,Pe))
+    print(f'CLASSIFIERS FOR TWO NORMAL DISTRIBUTIONS')
+    for x in xs:
+        xclass,px1,px2,Pe = bayes2(x, Pw1, Pw2, xw1,yw1, xw2,yw2)
+        print(f'Random variable {x:6.2f} belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
+        xclasses.append((x, xclass,px1,px2,Pe))
 
-    xclass,px1,px2,Pe = bayes2( 1, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable  -1.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append((  1.0, xclass,px1,px2,Pe))
-
-    xclass,px1,px2,Pe = bayes2( 0, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable   0.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append((  0.0, xclass,px1,px2,Pe))
-
-    xclass,px1,px2,Pe = bayes2(-10, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable -10.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append(( -10.0, xclass,px1,px2,Pe))
-
-    xclass,px1,px2,Pe = bayes2(10, 0.5, 0.5, xw1,yw1, xw2,yw2)
-    print(f'Random variable  10.0 belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
-    xclasses.append(( 10.0, xclass,px1,px2,Pe))
-
-    fig,ax = plt.subplots()
-    ax.plot(xw1,yw1, label='p(x|w1) - Class 1')
-    ax.plot(xw2,yw2, label='p(x|w2) - Class 2')
+    fig,ax = plt.subplots(1,2)
+    ax[0].plot(xw1,yw1, label='p(x|w1) - Class 1')
+    ax[0].plot(xw2,yw2, label='p(x|w2) - Class 2')
     for (x,xclass,px1,px2,Pe) in xclasses:
-        ax.plot(x,0,'o', label=f'{x} in class {xclass}')
-    ax.set_xlim(left=-20,right=20)
-    ax.legend()
-    ax.set_title(f'Region Classifiers with Probability of Error {100*Pe:.2f}%\nWith a priori probabilities of Pw1=0.5 and Pw2=0.5')
-    ax.set_ylabel('p(x|w)')
-    ax.set_xlabel('x')
-    plt.grid()
+        ax[0].plot(x,0,'o', label=f'{x} in class {xclass}')
+    ax[0].set_xlim(left=-20,right=20)
+    ax[0].legend()
+    ax[0].set_title(f'Region Classifiers with Probability of Error {100*Pe:.2f}%\nWith a priori probabilities of Pw1={Pw1} and Pw2={Pw2}')
+    ax[0].set_ylabel('p(x|w)')
+    ax[0].set_xlabel('x')
+    ax[0].grid()
+
+    print('\n\nCLASSIFIERS FOR GUMBEL AND CAUCHY DISTRIBUTIONS')
+
+    xw3,yw3 = gumbel.gumbel_distribution(5000, -20.0, 20.0, 0.5, 5.0)
+    xw4,yw4 = cauchy.cauchy_distribution(5000, -20.0, 20.0, 7.0, 1.0)
+
+    xclasses = []
+
+    # A priori probabilities
+    Pw1 = 0.5
+    Pw2 = 0.5
+
+    # List of random variales to classify
+    xs = [-5, 5, -1, 1, 0, -10, 10]
+
+    for x in xs:
+        xclass,px1,px2,Pe = bayes2(x, Pw1, Pw2, xw3,yw3, xw4,yw4)
+        print(f'Random variable {x:6.2f} belongs to class {xclass}, pxw1={px1:.3f}, pxw2={px2:.3f}, Pe={Pe:.3f}')
+        xclasses.append((x, xclass,px1,px2,Pe))
+
+    ax[1].plot(xw3,yw3, label='p(x|w1) - Class 1')
+    ax[1].plot(xw4,yw4, label='p(x|w2) - Class 2')
+    for (x,xclass,px1,px2,Pe) in xclasses:
+        ax[1].plot(x,0,'o', label=f'{x} in class {xclass}')
+    ax[1].set_xlim(left=-20,right=20)
+    ax[1].legend()
+    ax[1].set_title(f'Region Classifiers with Probability of Error {100*Pe:.2f}%\nWith a priori probabilities of Pw1={Pw1} and Pw2={Pw2}')
+    ax[1].set_ylabel('p(x|w)')
+    ax[1].set_xlabel('x')
+    ax[1].grid()
+
+    #plt.grid()
     plt.show()
