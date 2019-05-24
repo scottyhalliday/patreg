@@ -34,27 +34,24 @@ def bivariate_normal(npoints: int, xmin: float, xmax: float, ymin: float, ymax: 
 
     # Calculate PDF for x variate
     for i in range(npoints):
-        x_mu_T = np.transpose(x[i]-mu)
+        x_mu_T = -0.5*np.transpose(x[i]-mu)
         x_mu   = x[i]-mu
         dist   = x_mu_T.dot(inv_sigma)
         dist   = dist.dot(x_mu)
     
-        pxw1[i] = a*exp(-0.5*dist)
+        pxw1[i] = a*exp(dist)
 
     # Calculate PDF for y variate
     for i in range(npoints):
-        x_mu_T = np.transpose(y[i]-mu)
+        x_mu_T = -0.5*np.transpose(y[i]-mu)
         x_mu   = y[i]-mu
         dist   = x_mu_T.dot(inv_sigma)
         dist   = dist.dot(x_mu)
     
-        pyw1[i] = a*exp(-0.5*dist)
+        pyw1[i] = a*exp(dist)
 
     # Calculate the bivariate normal joint density
-    #pdf = np.outer(pxw1,pyw1)
-    for i in range(npoints):
-        for j in range(npoints):
-            pdf[i][j] = pxw1[i]*pyw1[j]
+    pdf = np.outer(pxw1,pyw1)
 
     return (pdf, x, y)
 
@@ -62,7 +59,9 @@ if __name__=='__main__':
 
     # Set the mean vector and covariance matrix
     mu    = np.zeros(2)
-    sigma = np.matrix('1 0;0 2')
+    mu[0] = 0
+    mu[1] = 0
+    sigma = np.matrix('15 6;0 3')
 
     # Set limits
     xmin = -5
@@ -74,12 +73,14 @@ if __name__=='__main__':
     npoints = 5000
 
     pdf,x,y = bivariate_normal(npoints, xmin,xmax, ymin,ymax, mu, sigma)
+    X,Y = np.meshgrid(x,y)
 
-    fig = plt.figure()  
-    ax  = fig.gca(projection='3d')
-    surf = ax.plot_surface(x,y,pdf)
-    
-    # Add a color bar which maps values to colors.
-    #fig.colorbar(surf, shrink=0.5, aspect=5)
+    fig,ax = plt.subplots()  
+    cs     = ax.contourf(X,Y,pdf, cmap='jet')
+    cbar   =fig.colorbar(cs)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+
+
 
     plt.show()
